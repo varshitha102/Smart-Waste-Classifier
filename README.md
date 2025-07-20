@@ -81,14 +81,15 @@ python real_time_detection.py
 ## 🖼️ Sample Screens
 
 **Homepage**
-`images/home page.png`
+![Homepage](images/home%20page.png)
 
 **Biodegradable Detection**
-`images/bio.png`
+![Homepage](images/bio.png)
 
 **Non-Biodegradable Detection**
-`images/de.png`
-`images/de1.png`
+![Homepage](images/de.png)
+![Homepage](images/de1.png)
+
 
 ---
 
