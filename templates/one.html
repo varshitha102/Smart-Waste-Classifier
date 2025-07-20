@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Garbage Classifier</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #2e7d32;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 60px auto;
+      background-color: #ffffffdd;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 100, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #81c784;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    input[type="submit"] {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background-color: #388e3c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #2e7d32;
+    }
+
+    .preview {
+      margin-top: 20px;
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 100, 0, 0.1);
+    }
+
+    .result {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .biodegradable {
+      color: #2e7d32;
+    }
+
+    .non-biodegradable {
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>♻️ Smart Garbage Classifier</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+      <input type="file" accept="image/*" capture="environment" id="image-input" required /><br />
+      <input type="submit" value="Classify" />
+    </form>
+    <img id="preview-image" class="preview" src="" alt="Preview will appear here" hidden />
+    <div id="prediction" class="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const imageInput = document.getElementById('image-input');
+    const previewImage = document.getElementById('preview-image');
+    const predictionText = document.getElementById('prediction');
+
+    imageInput.addEventListener('change', function () {
+      const file = imageInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+          previewImage.hidden = false;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('image', imageInput.files[0]);
+
+      predictionText.innerHTML = "⏳ Predicting...";
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        const biodegradableClass = data.type === "Biodegradable" ? "biodegradable" : "non-biodegradable";
+
+        predictionText.innerHTML = `
+          🧾 Prediction: <strong>${data.prediction}</strong><br>
+          ♻️ Type: <span class="${biodegradableClass}">${data.type}</span>
+        `;
+      } catch (error) {
+        predictionText.innerText = "⚠️ Error during prediction!";
+        console.error("Prediction error:", error);
+      }
+    });
+  </script>
+</body>
+</html>
